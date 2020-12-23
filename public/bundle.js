@@ -253,9 +253,7 @@ class UsersPresenter {
         this._refresh = false;
         this._handleClick = this._handleClick.bind(this);
 
-        this._usersList = {};
-        this._postsList = {};
-
+        this._usersList = [];
     }
 
     init() {
@@ -279,7 +277,7 @@ class UsersPresenter {
                 const newUser = new _view_users_view_js__WEBPACK_IMPORTED_MODULE_1__["default"](user, post, this._isLoading);
                 Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_0__["render"])(this._container, newUser);
                 newUser.setClickHandler(this._handleClick, post.id);
-                this._usersList[user.id] = newUser;
+                this._usersList.push(newUser);
             });
         });
     }
@@ -290,7 +288,16 @@ class UsersPresenter {
         Object(_utils_utils_js__WEBPACK_IMPORTED_MODULE_2__["denormalizeDataArrays"])(this._api, this._usersModel);
     }
 
+    _clearUsersTable() {
+        if(this._usersList.length) {
+            this._usersList.forEach(userComponent => {
+                Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_0__["remove"])(userComponent)
+            })
+        }
+    }
+
     _renderUsersTable() {
+        this._clearUsersTable();
         const users = this.users;
 
         this._renderUsers(users.slice());
@@ -336,7 +343,7 @@ class Observer {
 /*!*****************************!*\
   !*** ./src/utils/render.js ***!
   \*****************************/
-/*! exports provided: RenderPosition, render, renderTemplate, createElement */
+/*! exports provided: RenderPosition, render, renderTemplate, createElement, remove */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -345,6 +352,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "renderTemplate", function() { return renderTemplate; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createElement", function() { return createElement; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "remove", function() { return remove; });
 /* harmony import */ var _view_abstract_view_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../view/abstract-view.js */ "./src/view/abstract-view.js");
 
 
@@ -394,6 +402,20 @@ const createElement = (template) => {
 
     return newElement;
 };
+
+const remove = (component) => {
+    if (component === null) {
+        return;
+    }
+
+    if (!(component instanceof _view_abstract_view_js__WEBPACK_IMPORTED_MODULE_0__["default"])) {
+        throw new Error(`Can remove only components`);
+    }
+
+    component.getElement().remove();
+    component.removeElement();
+};
+
 
 /***/ }),
 
@@ -499,11 +521,10 @@ const createUserRow = (user, post) => {
 };
 
 class UserView extends _abstract_view_js__WEBPACK_IMPORTED_MODULE_0__["default"] {
-    constructor(user, post, isLoader) {
+    constructor(user, post) {
         super();
         this._user = user;
         this._post = post;
-        this._isLoader = isLoader;
 
         this._loaderTemplate = _const_js__WEBPACK_IMPORTED_MODULE_1__["LOADER_TEMPLATE"];
 
