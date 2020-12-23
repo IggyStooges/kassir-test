@@ -1,4 +1,4 @@
-import { render } from "../utils/render.js";
+import { render, remove } from "../utils/render.js";
 import UserView from "../view/users-view.js";
 import { denormalizeDataArrays } from "../utils/utils.js";
 
@@ -12,9 +12,7 @@ export default class UsersPresenter {
         this._refresh = false;
         this._handleClick = this._handleClick.bind(this);
 
-        this._usersList = {};
-        this._postsList = {};
-
+        this._usersList = [];
     }
 
     init() {
@@ -38,7 +36,7 @@ export default class UsersPresenter {
                 const newUser = new UserView(user, post, this._isLoading);
                 render(this._container, newUser);
                 newUser.setClickHandler(this._handleClick, post.id);
-                this._usersList[user.id] = newUser;
+                this._usersList.push(newUser);
             });
         });
     }
@@ -49,7 +47,16 @@ export default class UsersPresenter {
         denormalizeDataArrays(this._api, this._usersModel);
     }
 
+    _clearUsersTable() {
+        if(this._usersList.length) {
+            this._usersList.forEach(userComponent => {
+                remove(userComponent)
+            })
+        }
+    }
+
     _renderUsersTable() {
+        this._clearUsersTable();
         const users = this.users;
 
         this._renderUsers(users.slice());
